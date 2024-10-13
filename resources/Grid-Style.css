@@ -9,7 +9,7 @@ edge {
     fill-color: rgb(255, 255, 255);   /*Edge color */
     size: 1px;   /*Edge thickness */
     text-mode: normal; /* Ensures text is visible */
-    text-size: 16px;
+    text-size: 10px;
     text-style: bold;
     text-color: white;
     text-background-mode: rounded-box; /* Adds a background around the text */
@@ -25,16 +25,19 @@ node.inhibitor {  /* blue for inhibitor nodes */
 }
 
 node.highlighted {  /*  */
-    fill-color: red;
+    size: 20px;  /* Node size */
+    fill-color: rgb(255, 226, 8);
 }
 
 edge.highlighted {  /*  */
     fill-color: rgb(255, 226, 8);
-}
-
-edge.idle {  /*  */
-    size: 2px;  /* Edge thickness */
-    fill-color: rgb(0, 0, 0);
+    size: 3px;   /*Edge thickness */
+    text-mode: normal; /* Ensures text is visible */
+    text-size: 10px;
+    text-style: bold;
+    text-color: rgb(255, 226, 8);
+    text-background-mode: rounded-box; /* Adds a background around the text */
+    text-background-color: black;      /* Background color to simulate an outline */
 }
 
 /* New style for graph background color */

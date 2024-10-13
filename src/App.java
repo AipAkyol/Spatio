@@ -4,15 +4,19 @@ import org.graphstream.ui.view.Viewer;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import javax.print.DocFlavor.STRING;
 
 import org.graphstream.algorithm.generator.*;;
 
 public class App {
+    public static final int GRAPH_SIZE = 30; // Change this value for the number of nodes you want (GRAPH_SIZE*GRAPH_SIZE)
     public static final int CLOCK_CYCLE = 5;
     public static int clock = CLOCK_CYCLE; // The clock value for new interrupts
     public static ArrayList<String> deletedEdges = new ArrayList<String>();
+    public static ArrayList<String> edgestoHighlight = new ArrayList<String>();
+    public static ArrayList<String> nodestoHighlight = new ArrayList<String>();
     
     public static void main(String[] args) throws Exception {
         
@@ -34,8 +38,8 @@ public class App {
         gen.addSink(graph);
         gen.begin();
 
-        int graphSize = 20; // Change this value for the number of nodes you want (graphSize*graphSize)
-        for(int i=0; i+1 < graphSize; i++) {
+        
+        for(int i=0; i+1 < GRAPH_SIZE; i++) {
 	        gen.nextEvents();
         }
 
@@ -65,7 +69,7 @@ public class App {
                 node.setAttribute("totalEdgePower", newEdgePower);
             });
             node.setAttribute("lastActiveTime", 0);
-            node.setAttribute("ui.label", node.getAttribute("currentMiliVolts"));
+            //node.setAttribute("ui.label", node.getAttribute("currentMiliVolts"));
         });
 
         // delete edges between inhibitors
@@ -97,28 +101,41 @@ public class App {
         Viewer viewer = graph.display();
         Thread.sleep(2000); // Wait for 2 seconds to see the initial graph
 
-        //select two random nodes to interrupt from left side ids between 0_0 and (GraphSize-1)_0
-        int random1 = (int) (Math.random() * graphSize);
-        int random2 = (int) (Math.random() * graphSize);
+        //select two random nodes to interrupt from left side ids between 0_0 and (GRAPH_SIZE-1)_0
+        int random1 = (int) (Math.random() * GRAPH_SIZE);
+        int random2 = (int) (Math.random() * GRAPH_SIZE);
         while (random1 == random2) {
-            random2 = (int) (Math.random() * graphSize);
+            random2 = (int) (Math.random() * GRAPH_SIZE);
         }
         String node1 = "0_" + random1;
         String node2 = "0_" + random2;
         graph.getNode(node1).setAttribute("currentMiliVolts", 10);
         graph.getNode(node2).setAttribute("currentMiliVolts", 10);
-        graph.getNode(node1).setAttribute("ui.label", graph.getNode(node1).getAttribute("currentMiliVolts"));
-        graph.getNode(node2).setAttribute("ui.label", graph.getNode(node2).getAttribute("currentMiliVolts"));
+        //add to highlight list
+        nodestoHighlight.add(node1);
+        nodestoHighlight.add(node2);
+        //add edges to highlight list
+        graph.getNode(node1).edges().forEach(e -> {
+            edgestoHighlight.add(e.getId());
+        });
+        graph.getNode(node2).edges().forEach(e -> {
+            edgestoHighlight.add(e.getId());
+        });
+        //graph.getNode(node1).setAttribute("ui.label", graph.getNode(node1).getAttribute("currentMiliVolts"));
+        //graph.getNode(node2).setAttribute("ui.label", graph.getNode(node2).getAttribute("currentMiliVolts"));
         Thread.sleep(2000); // Wait for 2 seconds to see the initial interrupts
 
         while (true) {
+
+            
+
             clock--;
             // if clock is 0, interrupt new nodes randomly
             if (clock == 0) {
-                int random3 = (int) (Math.random() * graphSize);
-                int random4 = (int) (Math.random() * graphSize);
+                int random3 = (int) (Math.random() * GRAPH_SIZE);
+                int random4 = (int) (Math.random() * GRAPH_SIZE);
                 while (random3 == random4) {
-                    random4 = (int) (Math.random() * graphSize);
+                    random4 = (int) (Math.random() * GRAPH_SIZE);
                 }
                 String node3 = "0_" + random3;
                 String node4 = "0_" + random4;
@@ -127,17 +144,43 @@ public class App {
                 int node4Voltage = (int) graph.getNode(node4).getAttribute("currentMiliVolts") + 10;
                 graph.getNode(node3).setAttribute("currentMiliVolts", node3Voltage);
                 graph.getNode(node4).setAttribute("currentMiliVolts", node4Voltage);
-                graph.getNode(node3).setAttribute("ui.label", graph.getNode(node3).getAttribute("currentMiliVolts"));
-                graph.getNode(node4).setAttribute("ui.label", graph.getNode(node4).getAttribute("currentMiliVolts"));
+                //add to highlight list
+                nodestoHighlight.add(node3);
+                nodestoHighlight.add(node4);
+                //add edges to highlight list
+                graph.getNode(node3).edges().forEach(e -> {
+                    edgestoHighlight.add(e.getId());
+                });
+                graph.getNode(node4).edges().forEach(e -> {
+                    edgestoHighlight.add(e.getId());
+                });
+                //graph.getNode(node3).setAttribute("ui.label", graph.getNode(node3).getAttribute("currentMiliVolts"));
+                //graph.getNode(node4).setAttribute("ui.label", graph.getNode(node4).getAttribute("currentMiliVolts"));
                 clock = CLOCK_CYCLE;
             }
+
+            // highlight the interrupted nodes
+            highlightNodes(graph, nodestoHighlight);
+            // wait for some time to see the highlighted nodes
+            Thread.sleep(20);
+            // de-highlight the interrupted nodes
+            dehighlightNodes(graph, nodestoHighlight);
+            nodestoHighlight.clear();
+
+            // highlight the edges
+            highlightEdges(graph, edgestoHighlight);
+            // wait for some time to see the highlighted edges
+            Thread.sleep(20);
+            // de-highlight the edges
+            dehighlightEdges(graph, edgestoHighlight);
+            edgestoHighlight.clear();
 
             // for 10% chance, resurrect one of the deleted edges
             int random5 = (int) (Math.random() * 100);
             if (random5 < 10) {
                 if (deletedEdges.size() > 0) {
                     //randomly shuffle the deleted edges
-                    deletedEdges.sort((a, b) -> 0.5 < Math.random() ? -1 : 1);
+                    Collections.shuffle(deletedEdges);
                     String edgeId = deletedEdges.get(0);
                     String[] edgeNodes = edgeId.split(" ");
                     Node source = graph.getNode(edgeNodes[0]);
@@ -146,14 +189,16 @@ public class App {
                     edge.setAttribute("power", 4);
                     edge.setAttribute("ui.label", edge.getAttribute("power"));
                     deletedEdges.remove(0);
-                    System.out.println("Resurrected edge: " + edgeId);
                 }
             }
 
 
-            Thread.sleep(10); // Wait for 1 second to see the new voltage of the nodes
             // Calculate the new voltage of the nodes
             calculateVoltage(graph);
+
+            
+
+            
             
         }
             
@@ -197,6 +242,18 @@ public class App {
             });
 
             if (totalInterruptedVoltage[0] >= (int) node.getAttribute("threshold")) { // exhibitors won so increase bond power between and decrease bond power between inhibitors
+                
+                // add all the edges to highlight if not already added
+                node.edges().forEach(e -> {
+                    String edgeId = e.getId();
+                    if (!edgestoHighlight.contains(edgeId)) {
+                        edgestoHighlight.add(edgeId);
+                    }
+                });
+
+                // add the node to highlight
+                    nodestoHighlight.add(node.getId());
+                
                 node.setAttribute("currentMiliVolts", totalInterruptedVoltage[0]);
                 activeNeighbours.forEach(neighborId -> {
                     Node neighbor = graph.getNode(neighborId);
@@ -253,64 +310,45 @@ public class App {
 
             }
             
-        node.setAttribute("ui.label", node.getAttribute("currentMiliVolts"));
+        //node.setAttribute("ui.label", node.getAttribute("currentMiliVolts"));
         });
-        Thread.sleep(1000);
     }
     
-    // Method to highlight the edges concurrently
-    public static void highlightEdges(Graph graph, ArrayList<String> edges) throws InterruptedException {
+    // Method to highlight the edges concurrently, first check for null
+    public static void highlightEdges(Graph graph, ArrayList<String> edges)  {
         for (String edgeId : edges) {
             Edge currentEdge = graph.getEdge(edgeId);
-            currentEdge.setAttribute("ui.class", "highlighted");
-        }
-        // Sleep for some seconds to see the highlighted edges
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            if (currentEdge != null)
+                currentEdge.setAttribute("ui.class", "highlighted");
         }
     }
 
     // Method to de-highlight the edges concurrently
-    public static void dehighlightEdges(Graph graph, ArrayList<String> edges) throws InterruptedException {
+    public static void dehighlightEdges(Graph graph, ArrayList<String> edges)  {
         for (String edgeId : edges) {
             Edge currentEdge = graph.getEdge(edgeId);
-            currentEdge.setAttribute("ui.class", "idle");
-        }
-        // Sleep for some seconds to see the de-highlighted edges
-        try {
-            Thread.sleep(300);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            if (currentEdge != null)
+                currentEdge.removeAttribute("ui.class");
         }
     }
 
     // Method to highlight the interrupted nodes concurrently
-    public static void highlightNodes(Graph graph, ArrayList<String> nodes) throws InterruptedException {
+    public static void highlightNodes(Graph graph, ArrayList<String> nodes)  {
         for (String nodeId : nodes) {
             Node currentNode = graph.getNode(nodeId);
             currentNode.setAttribute("ui.class", "highlighted");
         }
-        // Sleep for some seconds to see the highlighted nodes
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
     // Method to de-highlight the interrupted nodes concurrently
-    public static void dehighlightNodes(Graph graph, ArrayList<String> nodes) throws InterruptedException {
+    public static void dehighlightNodes(Graph graph, ArrayList<String> nodes)  {
         for (String nodeId : nodes) {
             Node currentNode = graph.getNode(nodeId);
-            currentNode.setAttribute("ui.class", "idle");
-        }
-        // Sleep for some seconds to see the de-highlighted nodes
-        try {
-            Thread.sleep(300);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            if (currentNode.getAttribute("type").equals("inhibitor")) {
+                currentNode.setAttribute("ui.class", "inhibitor");
+            } else {
+                currentNode.setAttribute("ui.class", "exhibitor");
+            }
         }
     }
 }
