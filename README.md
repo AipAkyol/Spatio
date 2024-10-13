@@ -15,8 +15,8 @@ Meanwhile, the compiled output files will be generated in the `bin` folder by de
 
 ## Rules for Interrupts (in Turkish)
 
-1-Başlangıç Yerleşimi: Tüm nöronlar kare mazgalların köşeleri üzerine rastgele yerleştirilir. 
-2-Nöronun şekli dairedir. Ve her nöronun çapı 0,5 cm dir
+1-Başlangıç Yerleşimi: Tüm nöronlar kare mazgalların köşeleri üzerine rastgele yerleştirilir. (yüzde 30 inhibitor)
+2-Nöronun şekli dairedir. Ve her nöronun çapı 0,5 cm dir   
 3-İki tip nöron vardır: eksitatör ve inhibitör. 
 4-Ekstitatör nöron kırmızı daire ile gösterilir.
 5-İnhibitör nöron mavi daire ile gösterilir.
@@ -29,7 +29,7 @@ Meanwhile, the compiled output files will be generated in the `bin` folder by de
 12-Bir nöron, bağlantılı diğer bir nöronun ateşlenmesinden hemen sonraki zaman adımında ateşlenirse aralarındaki bağ güçlenir.
 13-Her bağ 4 derece gücünde oluşur.
 14-Bağlar zayıfladığında ve 2 derece gücünün bir altına düştüğünde kopar.
-15-Bir nöron, aldığı elektriksel girdiyi, bağ derecesi orantısında bağlı olduğu diğer nöronlara iletir. Örneğin, eksitatör bir nörona 9 mV'luk bir elektriksel uyarı geldiğinde ilk önce bu elektrik ekstitatör olduğu için 1 derece yükselerek 10 mV olur, bu nöronun sinaptik ağırlıkları sırasıyla 3, 5 ve 2 olan üç farklı nörona bağlandığı düşünülürse; uyarı, sırasıyla 3 mV, 5 mV ve 2 mV olarak bu nöronlara dağıtılacaktır. Bu durum, nöronun ateşleme eşiğini aşması durumunda gerçekleşir.
+15-Bir nöron, aldığı elektriksel girdiyi, bağ derecesi orantısında bağlı olduğu diğer nöronlara iletir. Örneğin, eksitatör bir nörona 9 mV'luk bir elektriksel uyarı geldiğinde ilk önce bu elektrik ekstitatör olduğu için 1 derece yükselerek 10 mV olur, bu nöronun sinaptik ağırlıkları sırasıyla 3, 5 ve 2 olan üç farklı nörona bağlandığı düşünülürse; uyarı, sırasıyla 3 mV, 5 mV ve 2 mV olarak bu nöronlara dağıtılacaktır. Bu durum, nöronun ateşleme eşiğini aşması durumunda gerçekleşir.  (tam olmaması durumunda yuvarla)
 16-Her nöronun ateşleme eşik değeri vardır ve bu ilk başta 3 mV dir. 1 mV’nin altına düşemez.
 17-Eksitatör nöronlar ateşlendiğinde kendilerine ulaşan elektriği 1mV arttırarak diğer nöronlara iletir. 
 18-İnhibitör nöronlar ateşlendiğinde kendilerine ulaşan elektriği 1mV azaltarak diğer nöronlara iletir.

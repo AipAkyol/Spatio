@@ -1,17 +1,27 @@
 node {
-    size: 8px, 8px;  /* Node size */
+    size: 15px, 15px;  /* Node size */
     fill-color: rgb(0, 0, 0);  /* Node color */
-    text-color: white;  /* Label color */
+    text-color: rgb(183, 111, 111);  /* Label color */
     text-size: 20px;  /* Label font size */
 }
 
 edge {
-    fill-color: rgb(0, 0, 0);  /* Edge color */
-    size: 2px;  /* Edge thickness */
+    fill-color: rgb(255, 255, 255);   /*Edge color */
+    size: 1px;   /*Edge thickness */
+    text-mode: normal; /* Ensures text is visible */
+    text-size: 16px;
+    text-style: bold;
+    text-color: white;
+    text-background-mode: rounded-box; /* Adds a background around the text */
+    text-background-color: black;      /* Background color to simulate an outline */
 }
 
-node.idle {  /*  */
-    fill-color: rgb(42, 79, 227);
+node.exhibitor {  /* red for exhibitor nodes */
+    fill-color: rgb(194, 24, 7);
+}
+
+node.inhibitor {  /* blue for inhibitor nodes */
+    fill-color: rgb(49,83,153);
 }
 
 node.highlighted {  /*  */
@@ -25,4 +35,9 @@ edge.highlighted {  /*  */
 edge.idle {  /*  */
     size: 2px;  /* Edge thickness */
     fill-color: rgb(0, 0, 0);
+}
+
+/* New style for graph background color */
+graph {
+    fill-color: rgb(28, 27, 27);  /* Change this to your desired color */
 }
