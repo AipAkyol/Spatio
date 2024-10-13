@@ -1,0 +1,20 @@
+node {
+    size: 30px, 30px;  /* Node size */
+    fill-color: red;  /* Node color */
+    text-color: white;  /* Label color */
+    text-size: 20px;  /* Label font size */
+}
+
+edge {
+    fill-color: blue;  /* Edge color */
+    size: 2px;  /* Edge thickness */
+}
+
+node.A {  /* Custom style for node A */
+    fill-color: green;
+}
+
+edge.AB {  /* Custom style for edge AB */
+    size: 5px;
+    fill-color: purple;
+}

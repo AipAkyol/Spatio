@@ -1,0 +1,28 @@
+node {
+    size: 8px, 8px;  /* Node size */
+    fill-color: rgb(0, 0, 0);  /* Node color */
+    text-color: white;  /* Label color */
+    text-size: 20px;  /* Label font size */
+}
+
+edge {
+    fill-color: rgb(0, 0, 0);  /* Edge color */
+    size: 2px;  /* Edge thickness */
+}
+
+node.idle {  /*  */
+    fill-color: rgb(42, 79, 227);
+}
+
+node.highlighted {  /*  */
+    fill-color: red;
+}
+
+edge.highlighted {  /*  */
+    fill-color: rgb(255, 226, 8);
+}
+
+edge.idle {  /*  */
+    size: 2px;  /* Edge thickness */
+    fill-color: rgb(0, 0, 0);
+}
