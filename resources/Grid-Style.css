@@ -17,11 +17,11 @@ edge {
 }
 
 node.exhibitor {  /* red for exhibitor nodes */
-    fill-color: rgb(194, 24, 7);
+    fill-color: rgb(49, 83, 153);
 }
 
 node.inhibitor {  /* blue for inhibitor nodes */
-    fill-color: rgb(49,83,153);
+    fill-color: rgb(194, 24, 7);
 }
 
 node.highlighted {  /*  */

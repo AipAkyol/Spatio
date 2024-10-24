@@ -2,6 +2,9 @@ import org.graphstream.graph.*;
 import org.graphstream.graph.implementations.*;
 import org.graphstream.ui.view.Viewer;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,6 +17,7 @@ public class App {
     public static final int GRAPH_SIZE = 30; // Change this value for the number of nodes you want (GRAPH_SIZE*GRAPH_SIZE)
     public static final int CLOCK_CYCLE = 5;
     public static int clock = CLOCK_CYCLE; // The clock value for new interrupts
+    public static final int THREAD_SLEEP = 5; // The sleep time for the threads on highlights
     public static ArrayList<String> deletedEdges = new ArrayList<String>();
     public static ArrayList<String> edgestoHighlight = new ArrayList<String>();
     public static ArrayList<String> nodestoHighlight = new ArrayList<String>();
@@ -99,7 +103,7 @@ public class App {
 
         //TODO: false or not
         Viewer viewer = graph.display();
-        Thread.sleep(2000); // Wait for 2 seconds to see the initial graph
+        Thread.sleep(7000); // Wait for 2 seconds to see the initial graph
 
         //select two random nodes to interrupt from left side ids between 0_0 and (GRAPH_SIZE-1)_0
         int random1 = (int) (Math.random() * GRAPH_SIZE);
@@ -123,11 +127,24 @@ public class App {
         });
         //graph.getNode(node1).setAttribute("ui.label", graph.getNode(node1).getAttribute("currentMiliVolts"));
         //graph.getNode(node2).setAttribute("ui.label", graph.getNode(node2).getAttribute("currentMiliVolts"));
-        Thread.sleep(2000); // Wait for 2 seconds to see the initial interrupts
+        //Thread.sleep(2000); // Wait for 2 seconds to see the initial interrupts
+
+        BufferedWriter totalWriter = new BufferedWriter(new FileWriter("out-total.txt"));
+        totalWriter.write("");
+        totalWriter.flush();   
+        totalWriter.close();
+
+        BufferedWriter rightEdgeWriter = new BufferedWriter(new FileWriter("out-right-edges.txt"));
+        rightEdgeWriter.write("");
+        rightEdgeWriter.flush();
+        rightEdgeWriter.close();
+        
+        int count = 0;
 
         while (true) {
 
-            
+            System.out.println("Iteration: " + count);
+            count++;
 
             clock--;
             // if clock is 0, interrupt new nodes randomly
@@ -139,6 +156,14 @@ public class App {
                 }
                 String node3 = "0_" + random3;
                 String node4 = "0_" + random4;
+                while (graph.getNode(node3) == null) {
+                    random3 = (int) (Math.random() * GRAPH_SIZE);
+                    node3 = "0_" + random3;
+                }
+                while (graph.getNode(node4) == null) {
+                    random4 = (int) (Math.random() * GRAPH_SIZE);
+                    node4 = "0_" + random4;
+                }
                 // increase the voltage of the nodes
                 int node3Voltage = (int) graph.getNode(node3).getAttribute("currentMiliVolts") + 10;
                 int node4Voltage = (int) graph.getNode(node4).getAttribute("currentMiliVolts") + 10;
@@ -159,10 +184,33 @@ public class App {
                 clock = CLOCK_CYCLE;
             }
 
+            int totalInterruptedNodes = 0;
+            totalInterruptedNodes = nodestoHighlight.size();
+            
+            // write the total number of interrupted nodes to the file
+            totalWriter = new BufferedWriter(new FileWriter("out-total.txt", true));
+            totalWriter.write(totalInterruptedNodes + " ");
+            totalWriter.flush();
+            System.out.println(totalInterruptedNodes);
+
+            // write the number of nodes that are highlighted on the right edge to the file
+            String righString = (GRAPH_SIZE - 1) + "_";
+            int rightEdgeInterruptedNodes = 0;
+            for (String nodeId : nodestoHighlight) {
+                if (nodeId.contains(righString)) {
+                    rightEdgeInterruptedNodes++;
+                }
+            }
+            rightEdgeWriter = new BufferedWriter(new FileWriter("out-right-edges.txt", true));
+            rightEdgeWriter.write(rightEdgeInterruptedNodes + " ");
+            rightEdgeWriter.flush();
+            System.out.println(rightEdgeInterruptedNodes);
+
+             
             // highlight the interrupted nodes
             highlightNodes(graph, nodestoHighlight);
             // wait for some time to see the highlighted nodes
-            Thread.sleep(20);
+            Thread.sleep(THREAD_SLEEP);
             // de-highlight the interrupted nodes
             dehighlightNodes(graph, nodestoHighlight);
             nodestoHighlight.clear();
@@ -170,10 +218,11 @@ public class App {
             // highlight the edges
             highlightEdges(graph, edgestoHighlight);
             // wait for some time to see the highlighted edges
-            Thread.sleep(20);
+            Thread.sleep(THREAD_SLEEP);
             // de-highlight the edges
             dehighlightEdges(graph, edgestoHighlight);
             edgestoHighlight.clear();
+            
 
             // for 10% chance, resurrect one of the deleted edges
             int random5 = (int) (Math.random() * 100);
